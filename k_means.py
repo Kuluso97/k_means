@@ -16,13 +16,26 @@ def load_data(inputFile):
 	X = X.astype(np.float)
 	return X, y
 
-def _get_objects(k, max_array, min_array):
+def _minmax_normalize(X):
+	res = []
+	for column in X.T:
+		column = (column - column.min()) / (column.max()-column.min())
+		res.append(column)
+
+	return np.array(res).T
+
+
+def _get_objects(k, X):
 	points = []
+	index_set = set()
+
 	for i in range(k):
-		coordinate = []
-		for j in range(len(max_array)):
-			coordinate.append(round(random.uniform(min_array[j]-1,max_array[j]+1),2))
-		points.append(tuple(coordinate))
+		index = random.randint(0, len(X)-1)
+		while index in index_set:
+			index = random.randint(0, len(X)-1)
+		points.append(X[index])
+		index_set.add(index)
+
 	return np.array(points)
 
 def _get_diff(C, C_old):
@@ -39,8 +52,7 @@ def _get_distance(p, C):
 	return res
 
 def k_means(k, X):
-	max_array, min_array = list(np.amax(X, axis=0)), list(np.amin(X,axis=0))
-	C = _get_objects(k, max_array, min_array)
+	C = _get_objects(k, X)
 
 	C_old = np.zeros(C.shape)
 	clusters = np.zeros(len(X))
@@ -83,9 +95,11 @@ def main():
 		inputFile, k, outputFile = 'iris.data.txt', 3, 'iris.out'
 	else:
 		inputFile, k, outputFile = sys.argv[1:]
+		k = int(k)
 
 	## load data
 	X, y = load_data(inputFile)
+	# X_normal = _minmax_normalize(X)
 
 	## perform k-means algorithm
 	clusters, C = k_means(k, X)
