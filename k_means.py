@@ -84,11 +84,6 @@ def get_sse(k, X, clusters, C):
 
 	return sse
 
-def write_label(clusters, outputFile):
-	with open(outputFile, 'w') as f:
-		for i in clusters:
-			f.write(str(i)+'\n')
-
 def main():
 	## naive handling of commandline input
 	if len(sys.argv) != 4:
@@ -110,7 +105,12 @@ def main():
 
 	## print results
 	clusters = list(map(int, clusters))
-	write_label(clusters, outputFile)
+
+	with open(outputFile, 'w') as f:
+		for i in clusters:
+			f.write(str(i)+'\n')
+		f.write("The SSE of the cluster is: %.2f" %sse)
 
 if __name__ == '__main__':
 	main()
+
